@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
-export class Developer {
-  id: number;
-  name: string;
-}
+import { Component, OnInit } from '@angular/core';
+
+import { Developer } from './developer';
+import { DeveloperDetailComponent } from './developer-detail.component';
+import { DeveloperService } from './developer.service';
+
 @Component({
   selector: 'my-app',
   template:`
-    <h1>{{title}}</h1>
-    <h2>My developers</h2>
+    <h1>{{title}} by {{powerBy}}</h1>
+    <h2>My Team</h2>
     <ul class="developers">
       <li *ngFor="let developer of developers"
         [class.selected]="developer === selectedDeveloper"
@@ -15,16 +16,9 @@ export class Developer {
         <span class="badge">{{developer.id}}</span> {{developer.name}}
       </li>
     </ul>
-    <div *ngIf="selectedDeveloper">
-      <h2>{{selectedDeveloper.name}} details!</h2>
-      <div><label>id: </label>{{selectedDeveloper.id}}</div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="selectedDeveloper.name" placeholder="name"/>
-      </div>
-    </div>
+    <my-developer-detail [developer]="selectedDeveloper"></my-developer-detail>
   `,
-  styles:[`
+  styles: [`
     .selected {
       background-color: #CFD8DC !important;
       color: white;
@@ -72,26 +66,25 @@ export class Developer {
       margin-right: .8em;
       border-radius: 4px 0 0 4px;
     }
-  `]
+  `],
+  directives: [DeveloperDetailComponent],
+  providers: [DeveloperService]
 })
-export class AppComponent { 
-  title = 'Angular2 trainnig';
-  developers = DEVELOPERS;
+export class AppComponent implements OnInit {
+  title = 'Developers app';
+  developers: Developer[];
   selectedDeveloper: Developer;
+  powerBy:'JGO';
+
+  constructor(private developerService: DeveloperService) { }
+
+  getDevelopers() {
+    this.developerService.getDevelopers().then(developers => this.developers = developers);
+  }
+
+  ngOnInit() {
+    this.getDevelopers();
+  }
+
   onSelect(developer: Developer) { this.selectedDeveloper = developer; }
-
 }
-
-var DEVELOPERS: Developer[] = [
-{ "id": 10, "name": "JGO" },
-  { "id": 11, "name": "M" },
-  { "id": 12, "name": "N" },
-  { "id": 13, "name": "B" },
-  { "id": 14, "name": "Cas" },
-  { "id": 15, "name": "Mta" },
-  { "id": 16, "name": "RrMan" },
-  { "id": 17, "name": "Dma" },
-  { "id": 18, "name": "DQ" },
-  { "id": 19, "name": "Ma" },
-  { "id": 20, "name": "Tdo" }
-];

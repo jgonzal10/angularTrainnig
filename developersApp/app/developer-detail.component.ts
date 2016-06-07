@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component , EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
 
 import { Developer } from './developer';
@@ -10,7 +10,10 @@ import { DeveloperService } from './developer.service';
   styleUrls: ['app/styles/developer-detail.component.css']
 })
 export class DeveloperDetailComponent implements OnInit {
-  developer: Developer;
+  @Input() hero: Hero;
+  @Output() close = new EventEmitter();
+  error: any;
+  navigated = false; // true if navigated here
 
   constructor(
     private developerService: DeveloperService,
@@ -18,13 +21,31 @@ export class DeveloperDetailComponent implements OnInit {
   }
 
   ngOnInit() {
+  if (this.routeParams.get('id') !== null) {
     let id = +this.routeParams.get('id');
     this.developerService.getDeveloper(id)
       .then(developer => this.developer = developer);
-  }
+      }else{
+          this.navigated = false;
+          this.developer = new Developer();
 
-  goBack() {
-    window.history.back();
+      }
+
+  }
+  save() {
+  this.developerService
+      .save(this.developer)
+      .then(developer => {
+        this.developer = developer; // saved developer, w/ id if new
+        this.goBack(developer);
+      })
+      .catch(error => this.error = error); // TODO: Display error message
+}
+
+
+  goBack(savedDeveloper: developer = null) {
+    this.close.emit(savedDeveloper);
+  if (this.navigated) { window.history.back(); }
   }
 }
 

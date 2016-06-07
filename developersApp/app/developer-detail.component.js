@@ -10,21 +10,52 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
+var developer_1 = require('./developer');
 var developer_service_1 = require('./developer.service');
 var DeveloperDetailComponent = (function () {
     function DeveloperDetailComponent(developerService, routeParams) {
         this.developerService = developerService;
         this.routeParams = routeParams;
+        this.close = new core_1.EventEmitter();
+        this.navigated = false; // true if navigated here
     }
     DeveloperDetailComponent.prototype.ngOnInit = function () {
         var _this = this;
-        var id = +this.routeParams.get('id');
-        this.developerService.getDeveloper(id)
-            .then(function (developer) { return _this.developer = developer; });
+        if (this.routeParams.get('id') !== null) {
+            var id = +this.routeParams.get('id');
+            this.developerService.getDeveloper(id)
+                .then(function (developer) { return _this.developer = developer; });
+        }
+        else {
+            this.navigated = false;
+            this.developer = new developer_1.Developer();
+        }
     };
-    DeveloperDetailComponent.prototype.goBack = function () {
-        window.history.back();
+    DeveloperDetailComponent.prototype.save = function () {
+        var _this = this;
+        this.developerService
+            .save(this.developer)
+            .then(function (developer) {
+            _this.developer = developer; // saved developer, w/ id if new
+            _this.goBack(developer);
+        })
+            .catch(function (error) { return _this.error = error; }); // TODO: Display error message
     };
+    DeveloperDetailComponent.prototype.goBack = function (savedDeveloper) {
+        if (savedDeveloper === void 0) { savedDeveloper = null; }
+        this.close.emit(savedDeveloper);
+        if (this.navigated) {
+            window.history.back();
+        }
+    };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], DeveloperDetailComponent.prototype, "hero", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], DeveloperDetailComponent.prototype, "close", void 0);
     DeveloperDetailComponent = __decorate([
         core_1.Component({
             selector: 'my-developer-detail',

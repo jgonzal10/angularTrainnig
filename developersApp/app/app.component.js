@@ -16,7 +16,7 @@ var developer_detail_component_1 = require('./developer-detail.component');
 var developer_service_1 = require('./developer.service');
 var AppComponent = (function () {
     function AppComponent() {
-        this.title = 'DEVELOPERS by JGO';
+        this.title = 'JGOapp';
     }
     AppComponent = __decorate([
         core_1.Component({

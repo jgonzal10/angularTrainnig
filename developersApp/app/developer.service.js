@@ -8,18 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var mock_developers_1 = require('./mock-developers');
+var http_1 = require('@angular/http');
 var core_1 = require('@angular/core');
+require('rxjs/add/operator/toPromise');
 var DeveloperService = (function () {
-    function DeveloperService() {
+    function DeveloperService(http) {
+        this.http = http;
+        //private developersUrl = 'http://api.androidhive.info/contacts/';
+        this.developersUrl = 'http://201.24.26.23/wsrest/api/Seguranca/ConsultaModulos';
     }
     DeveloperService.prototype.getDevelopers = function () {
-        return Promise.resolve(mock_developers_1.DEVELOPERS);
+        return this.http.get(this.developersUrl)
+            .toPromise()
+            .then(function (response) { return response.json().data; })
+            .catch(this.handleError);
     };
     // See the "Take it slow" appendix
     DeveloperService.prototype.getDevelopersSlowly = function () {
         return new Promise(function (resolve) {
-            return setTimeout(function () { return resolve(mock_developers_1.DEVELOPERS); }, 2000);
+            return setTimeout(function () { return resolve(DEVELOPERS); }, 2000);
         } // 2 seconds
          // 2 seconds
         );
@@ -28,9 +35,50 @@ var DeveloperService = (function () {
         return this.getDevelopers()
             .then(function (developers) { return developers.filter(function (developer) { return developer.id === id; })[0]; });
     };
+    DeveloperService.prototype.handleError = function (error) {
+        console.error('An error occurred', error);
+        return Promise.reject(error.message || error);
+    };
+    // Add new Developer
+    DeveloperService.prototype.post = function (developer) {
+        var headers = new http_1.Headers({
+            'Content-Type': 'application/json' });
+        return this.http
+            .post(this.developersUrl, JSON.stringify(developer), { headers: headers })
+            .toPromise()
+            .then(function (res) { return res.json().data; })
+            .catch(this.handleError);
+    };
+    // Update existing Developer
+    DeveloperService.prototype.put = function (developer) {
+        var headers = new http_1.Headers();
+        headers.append('Content-Type', 'application/json');
+        var url = this.developersUrl + "/" + developer.id;
+        return this.http
+            .put(url, JSON.stringify(developer), { headers: headers })
+            .toPromise()
+            .then(function () { return developer; })
+            .catch(this.handleError);
+    };
+    DeveloperService.prototype.delete = function (developer) {
+        var headers = new http_1.Headers();
+        headers.append('Content-Type', 'application/json');
+        var url = this.developersUrl + "/" + developer.id;
+        return this.http
+            .delete(url, headers)
+            .toPromise()
+            .catch(this.handleError);
+    };
+    //saving the developer
+    DeveloperService.prototype.save = function (developer) {
+        if (developer.id) {
+            return this.put(developer);
+        }
+        return this.post(developer);
+    };
     DeveloperService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [http_1.Http])
     ], DeveloperService);
     return DeveloperService;
 }());

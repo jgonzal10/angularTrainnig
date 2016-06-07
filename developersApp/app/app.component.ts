@@ -42,7 +42,7 @@ import { DeveloperService } from './developer.service';
   }
 ])
 export class AppComponent {
-  title = 'DEVELOPERS by JGO';
+  title = 'JGOapp';
 }
 
 

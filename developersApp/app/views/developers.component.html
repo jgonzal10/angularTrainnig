@@ -5,6 +5,12 @@
     (click)="onSelect(developer)">
     <span class="badge">{{developer.id}}</span> {{developer.name}}
   </li>
+  <button class="delete-button" (click)="delete(developer, $event)">Delete</button>
+  <button (click)="addHero()">Add New Hero</button>
+	<div *ngIf="addingDeveloper">
+	  <my-developer-detail (close)="close($event)"></my-developer-detail>
+	</div>
+
 </ul>
 <div *ngIf="selectedDeveloper">
   <h2>

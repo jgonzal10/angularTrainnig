@@ -11,10 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
 var developer_service_1 = require('./developer.service');
+var developer_detail_component_1 = require('./developer-detail.component');
 var DevelopersComponent = (function () {
     function DevelopersComponent(router, developerService) {
         this.router = router;
         this.developerService = developerService;
+        this.addingDeveloper = false;
     }
     DevelopersComponent.prototype.getDevelopers = function () {
         var _this = this;
@@ -27,11 +29,35 @@ var DevelopersComponent = (function () {
     DevelopersComponent.prototype.gotoDetail = function () {
         this.router.navigate(['DeveloperDetail', { id: this.selectedDeveloper.id }]);
     };
+    DevelopersComponent.prototype.addDeveloper = function () {
+        this.addingDeveloper = true;
+        this.selectedDeveloper = null;
+    };
+    DevelopersComponent.prototype.close = function (savedDeveloper) {
+        this.addingDeveloper = false;
+        if (savedDeveloper) {
+            this.getDeveloper();
+        }
+    };
+    DevelopersComponent.prototype.delete = function (developer, event) {
+        var _this = this;
+        event.stopPropagation();
+        this.developerService
+            .delete(developer)
+            .then(function (res) {
+            _this.developers = _this.developers.filter(function (h) { return h !== developer; });
+            if (_this.selectedDeveloper === developer) {
+                _this.selectedDeveloper = null;
+            }
+        })
+            .catch(function (error) { return _this.error = error; }); // TODO: Display error message
+    };
     DevelopersComponent = __decorate([
         core_1.Component({
             selector: 'my-developers',
             templateUrl: 'app/views/developers.component.html',
-            styleUrls: ['app/styles/developers.component.css']
+            styleUrls: ['app/styles/developers.component.css'],
+            directives: [developer_detail_component_1.DeveloperDetailComponent]
         }), 
         __metadata('design:paramtypes', [router_deprecated_1.Router, developer_service_1.DeveloperService])
     ], DevelopersComponent);
